@@ -22,7 +22,9 @@ jobs:
       uses: knative/actions/setup-go@main
 
     - name: Install ko
-      uses: ko-build/setup-ko@d006021bd0c28d1ce33a07e7943d48b079944c8d # v0.9
+      run: |
+        # Install specific version of ko that works
+        go install github.com/google/ko@v0.15.2
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
