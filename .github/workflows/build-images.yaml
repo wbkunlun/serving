@@ -34,15 +34,15 @@ jobs:
     - name: Build and Push Images
       env:
         KO_DOCKER_REPO: docker.io/brycehuang/knative
-        KO_FLAGS: --platform=linux/amd64 --sbom=none
+        KO_FLAGS: --platform=linux/amd64
         TAG: ${{ github.ref_name }}
       run: |
-        # Build core images
-        ko resolve --tags ${TAG} -RBf ./config/core/
+        # Build core images (--sbom=false to skip SBOM generation)
+        ko resolve --tags ${TAG} -RBf --sbom=false ./config/core/
         # Build HPA autoscaling images
-        ko resolve --tags ${TAG} -RBf ./config/hpa-autoscaling/
+        ko resolve --tags ${TAG} -RBf --sbom=false ./config/hpa-autoscaling/
         # Build post-install images
-        ko resolve --tags ${TAG} -RBf ./config/post-install/
+        ko resolve --tags ${TAG} -RBf --sbom=false ./config/post-install/
 
     - name: List pushed images
       run: |
