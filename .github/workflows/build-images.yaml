@@ -34,7 +34,7 @@ jobs:
     - name: Build and Push Images
       env:
         KO_DOCKER_REPO: docker.io/brycehuang/knative
-        KO_FLAGS: --platform=linux/amd64
+        KO_FLAGS: --platform=linux/amd64 --sbom=none
         TAG: ${{ github.ref_name }}
       run: |
         # Build core images
