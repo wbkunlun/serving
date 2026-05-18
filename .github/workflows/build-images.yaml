@@ -34,6 +34,6 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           export KO_DOCKER_REPO=docker.io/brycehuang/knative
-          ko resolve --tags=${TAG} -f ./config/core/
-          ko resolve --tags=${TAG} -f ./config/hpa-autoscaling/
-          ko resolve --tags=${TAG} -f ./config/post-install/
+          ko resolve -B --tags=${TAG} -f ./config/core/
+          ko resolve -B --tags=${TAG} -f ./config/hpa-autoscaling/
+          ko resolve -B --tags=${TAG} -f ./config/post-install/
