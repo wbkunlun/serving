@@ -43,7 +43,7 @@ jobs:
             docker buildx build \
               --platform linux/amd64 \
               --build-arg component=${component} \
-              --tag ${REGISTRY}/${component}:${TAG} \
+              --tag ${REGISTRY}:${component}-${TAG} \
               --push \
               .
             echo "Pushed ${component}:${TAG}"
