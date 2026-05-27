@@ -12,7 +12,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 OUTPUT_DIR = REPO_ROOT / "release-yamls"
-VERSION = "v1.22.2"
+VERSION = "v1.22.3"
 REGISTRY = "docker.io/brycehuang/knative"
 NET_CONTOUR_CONFIG = os.environ.get("NET_CONTOUR_CONFIG", "/tmp/net-contour/config")
 

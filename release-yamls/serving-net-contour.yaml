@@ -6,7 +6,7 @@ metadata:
     networking.knative.dev/ingress-provider: contour
     app.kubernetes.io/component: net-contour
     app.kubernetes.io/name: knative-serving
-    app.kubernetes.io/version: v1.22.2
+    app.kubernetes.io/version: v1.22.3
     serving.knative.dev/controller: 'true'
 rules:
 - apiGroups:
@@ -32,7 +32,7 @@ metadata:
     networking.knative.dev/ingress-provider: contour
     app.kubernetes.io/component: net-contour
     app.kubernetes.io/name: knative-serving
-    app.kubernetes.io/version: v1.22.2
+    app.kubernetes.io/version: v1.22.3
 data:
   _example: "################################\n#                              #\n#    EXAMPLE CONFIGURATION     #\n#                              #\n################################\n\n# timeout-policy-idle sets TimeoutPolicy.Idle in contour HTTPProxy spec\ntimeout-policy-idle: \"infinity\"\n\n# timeout-policy-response sets TimeoutPolicy.Response in contour HTTPProxy spec\ntimeout-policy-response: \"infinity\"\n\n# If auto-TLS is disabled fallback to the following certificate\n#\n# An operator is required to setup a TLSCertificateDelegation\n# for this secret to be used\ndefault-tls-secret: \"some-namespace/some-secret\"\n\n# visibility contains the configuration for how to expose services\n# of assorted visibilities.  Each entry is keyed by the visibility\n# and contains two keys:\n#  1. the \"class\" value to pass to the Contour class annotations,\n#  2. the namespace/name of the Contour Envoy service.\nvisibility: |\n  ExternalIP:\n    class: contour-external\n    service: contour-external/envoy\n\
     \  ClusterLocal:\n    class: contour-internal\n    service: contour-internal/envoy\n# cors-policy contains the configuration to set CORS policy for HTTPProxies.\ncors-policy: |\n  allowCredentials: true\n  allowOrigin:\n    - example.com\n  allowMethods:\n    - GET\n    - POST\n    - OPTIONS\n  allowHeaders:\n    - authorization\n    - cache-control\n  exposeHeaders:\n    - Content-Length\n    - Content-Range\n  maxAge: \"10m\"\n"
@@ -46,7 +46,7 @@ metadata:
     networking.knative.dev/ingress-provider: contour
     app.kubernetes.io/component: net-contour
     app.kubernetes.io/name: knative-serving
-    app.kubernetes.io/version: v1.22.2
+    app.kubernetes.io/version: v1.22.3
 spec:
   replicas: 1
   selector:
@@ -58,12 +58,12 @@ spec:
         app: net-contour-controller
         app.kubernetes.io/component: net-contour
         app.kubernetes.io/name: knative-serving
-        app.kubernetes.io/version: v1.22.2
+        app.kubernetes.io/version: v1.22.3
     spec:
       serviceAccountName: controller
       containers:
       - name: controller
-        image: docker.io/brycehuang/knative:net-contour-controller-v1.22.2
+        image: docker.io/brycehuang/knative:net-contour-controller-v1.22.3
         resources:
           requests:
             cpu: 40m
@@ -106,7 +106,7 @@ metadata:
     networking.knative.dev/ingress-provider: contour
     app.kubernetes.io/component: net-contour
     app.kubernetes.io/name: knative-serving
-    app.kubernetes.io/version: v1.22.2
+    app.kubernetes.io/version: v1.22.3
 spec:
   delegations:
   - secretName: routing-serving-certs
