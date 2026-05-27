@@ -357,6 +357,10 @@ func MainWithConfig(ctx context.Context, component string, cfg *rest.Config, cto
 
 type healthProbesDisabledKey struct{}
 
+// EnableFileLogging is a function pointer that, if set, is called to add rotating
+// file output to the logger. Set by knative.dev/serving/pkg/logging via init().
+var EnableFileLogging func(logger *zap.SugaredLogger, zapConfigJSON string, component string) *zap.SugaredLogger
+
 // WithHealthProbesDisabled signals to MainWithContext that it should disable default probes (readiness and liveness).
 func WithHealthProbesDisabled(ctx context.Context) context.Context {
 	return context.WithValue(ctx, healthProbesDisabledKey{}, struct{}{})
@@ -377,6 +381,12 @@ func SetupLoggerOrDie(ctx context.Context, component string) (*zap.SugaredLogger
 
 	if pn := system.PodName(); pn != "" {
 		l = l.With(zap.String(logkey.Pod, pn))
+	}
+
+	// Enable rotating file writer if the function pointer has been set
+	// (set by knative.dev/serving/pkg/logging init()).
+	if EnableFileLogging != nil {
+		l = EnableFileLogging(l, loggingConfig.LoggingConfig, component)
 	}
 
 	return l, level

@@ -36,6 +36,8 @@ import (
 	"knative.dev/serving/pkg/networking"
 	"knative.dev/serving/pkg/reconciler/certificate"
 	"knative.dev/serving/pkg/reconciler/configuration"
+
+	_ "knative.dev/serving/pkg/logging"
 	"knative.dev/serving/pkg/reconciler/domainmapping"
 	"knative.dev/serving/pkg/reconciler/gc"
 	"knative.dev/serving/pkg/reconciler/labeler"

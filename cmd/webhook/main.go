@@ -44,6 +44,7 @@ import (
 
 	// config validation constructors
 	netcfg "knative.dev/networking/pkg/config"
+	_ "knative.dev/serving/pkg/logging"
 	apisconfig "knative.dev/serving/pkg/apis/config"
 	autoscalerconfig "knative.dev/serving/pkg/autoscaler/config"
 	"knative.dev/serving/pkg/deployment"

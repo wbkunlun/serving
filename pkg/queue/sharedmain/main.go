@@ -188,6 +188,7 @@ func Main(opts ...Option) error {
 
 	// Setup the Logger.
 	logger, _ := pkglogging.NewLogger(env.ServingLoggingConfig, env.ServingLoggingLevel)
+	logger = logging.EnableFileLogging(logger, env.ServingLoggingConfig, "queueproxy")
 	defer flush(logger)
 
 	if data := os.Getenv("OBSERVABILITY_CONFIG"); data != "" {

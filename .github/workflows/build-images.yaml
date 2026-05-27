@@ -33,12 +33,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push images
+      - name: Checkout net-contour
+        uses: actions/checkout@v4
+        with:
+          repository: wbkunlun/net-contour
+          path: net-contour
+
+      - name: Build and push serving images
         env:
           TAG: ${{ github.ref_name }}
           REGISTRY: docker.io/brycehuang/knative
         run: |
-          for component in activator autoscaler autoscaler-hpa controller default-domain queue webhook; do
+          for component in activator autoscaler controller queue webhook; do
             echo "Building ${component}..."
             docker buildx build \
               --platform linux/amd64 \
@@ -48,3 +54,18 @@ jobs:
               .
             echo "Pushed ${component}:${TAG}"
           done
+
+      - name: Build and push net-contour image
+        env:
+          TAG: ${{ github.ref_name }}
+          REGISTRY: docker.io/brycehuang/knative
+        working-directory: net-contour
+        run: |
+          echo "Building net-contour-controller..."
+          docker buildx build \
+            --platform linux/amd64 \
+            --build-arg component=controller \
+            --tag ${REGISTRY}:net-contour-controller-${TAG} \
+            --push \
+            .
+          echo "Pushed net-contour-controller:${TAG}"

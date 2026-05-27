@@ -22,6 +22,8 @@ import (
 
 	// This defines the shared main for injected controllers.
 	"knative.dev/pkg/injection/sharedmain"
+
+	_ "knative.dev/serving/pkg/logging"
 )
 
 func main() {

@@ -129,6 +129,7 @@ func main() {
 		zap.String(logkey.ControllerType, component),
 		zap.String(logkey.Pod, env.PodName),
 	)
+	logger = logging.EnableFileLogging(logger, loggingConfig.LoggingConfig, component)
 	ctx = pkglogging.WithLogger(ctx, logger)
 	defer flush(logger)
 

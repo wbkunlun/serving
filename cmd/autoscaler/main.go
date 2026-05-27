@@ -45,6 +45,7 @@ import (
 	"knative.dev/pkg/injection/sharedmain"
 	"knative.dev/pkg/leaderelection"
 	"knative.dev/pkg/logging"
+	svclogging "knative.dev/serving/pkg/logging"
 	k8sruntime "knative.dev/pkg/observability/runtime/k8s"
 	"knative.dev/pkg/signals"
 	"knative.dev/pkg/system"
@@ -107,6 +108,7 @@ func main() {
 		log.Fatal("Error loading/parsing logging configuration: ", err)
 	}
 	logger, atomicLevel := logging.NewLoggerFromConfig(loggingConfig, component)
+	logger = svclogging.EnableFileLogging(logger, loggingConfig.LoggingConfig, component)
 	defer logger.Sync()
 	ctx = logging.WithLogger(ctx, logger)
 

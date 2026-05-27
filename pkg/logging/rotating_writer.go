@@ -18,6 +18,7 @@ package logging
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -27,8 +28,16 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	sharedmain "knative.dev/pkg/injection/sharedmain"
 )
+
+func init() {
+	// Wire the rotating file writer into sharedmain's SetupLoggerOrDie
+	// for all controller components (controller, webhook, hpa-autoscaler, net-*)
+	sharedmain.EnableFileLogging = EnableFileLogging
+}
 
 // RotationConfig holds file rotation settings from environment variables
 type RotationConfig struct {
@@ -303,6 +312,51 @@ func SetupRotatingFileWriter(cfg *RotationConfig) (zapcore.WriteSyncer, error) {
 // NewBeijingTimeEncoder creates a zap time encoder for Beijing timezone
 func NewBeijingTimeEncoder() zapcore.TimeEncoder {
 	return NewTimeEncoder("Asia/Shanghai")
+}
+
+// buildEncoderFromJSON parses a zap-logger-config JSON and returns the configured encoder.
+// Returns nil if the JSON is empty or invalid.
+func buildEncoderFromJSON(zapConfigJSON string) zapcore.Encoder {
+	if zapConfigJSON == "" {
+		return nil
+	}
+	var cfg zap.Config
+	if err := json.Unmarshal([]byte(zapConfigJSON), &cfg); err != nil {
+		return nil
+	}
+	switch cfg.Encoding {
+	case "console":
+		return zapcore.NewConsoleEncoder(cfg.EncoderConfig)
+	default:
+		return zapcore.NewJSONEncoder(cfg.EncoderConfig)
+	}
+}
+
+// EnableFileLogging wraps a zap logger to add rotating file output, enabled by default.
+// The zapConfigJSON is the "zap-logger-config" JSON from config-logging ConfigMap,
+// used to match the encoder format. Set LOG_ENABLE_FILE=false to disable.
+func EnableFileLogging(logger *zap.SugaredLogger, zapConfigJSON string, component string) *zap.SugaredLogger {
+	cfg := GetRotationConfig(component)
+	if !cfg.LogEnableFile {
+		return logger
+	}
+
+	fileWriter, err := SetupRotatingFileWriter(cfg)
+	if err != nil {
+		logger.Warnw("Failed to setup rotating file writer, continuing with stdout only", zap.Error(err))
+		return logger
+	}
+
+	// Build encoder from the original zap config JSON to match format
+	enc := buildEncoderFromJSON(zapConfigJSON)
+	if enc == nil {
+		enc = zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+	}
+
+	// Replace the core to write to rotating file (which also writes to stdout internally)
+	return logger.WithOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+		return zapcore.NewCore(enc, fileWriter, core)
+	}))
 }
 
 // NewTimeEncoder creates a zap time encoder for specified timezone
