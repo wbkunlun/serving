@@ -31,9 +31,9 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: uat.sf.dockerhub.stgwebank
+          username: ${{ secrets.STGWEBANK_USERNAME }}
+          password: ${{ secrets.STGWEBANK_TOKEN }}
 
       - name: Determine image tag
         id: tag
@@ -58,7 +58,7 @@ jobs:
       - name: Build and push serving images
         env:
           TAG: ${{ steps.tag.outputs.tag }}
-          REGISTRY: docker.io/brycehuang/knative
+          REGISTRY: uat.sf.dockerhub.stgwebank/cnapp/wfaas-serving
         run: |
           for component in activator autoscaler controller queue webhook; do
             echo "Building ${component}..."
@@ -74,7 +74,7 @@ jobs:
       - name: Build and push net-contour image
         env:
           TAG: ${{ steps.tag.outputs.tag }}
-          REGISTRY: docker.io/brycehuang/knative
+          REGISTRY: uat.sf.dockerhub.stgwebank/cnapp/wfaas-serving
         working-directory: net-contour
         run: |
           echo "Building net-contour-controller..."
