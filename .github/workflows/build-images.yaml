@@ -44,7 +44,7 @@ jobs:
             # Extract version from branch name: feature/v1.22.3 -> v1.22.3
             BRANCH_NAME="${{ github.ref_name }}"
             VERSION="${BRANCH_NAME#feature/}"
-            TAG="${VERSION}_run${{ github.run_number }}.${{ github.run_attempt }}"
+            TAG="${VERSION}_run${{ github.run_number }}_${{ github.run_attempt }}"
           fi
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "Using tag: ${TAG}"
