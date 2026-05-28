@@ -26,7 +26,7 @@ func TestRotatingWriter(t *testing.T) {
 	tmpDir := t.TempDir()
 	logFile := "test.log"
 
-	writer, err := newRotatingWriter(tmpDir, logFile, 10, 24, 7, false)
+	writer, err := newRotatingWriter(tmpDir, logFile, 10, 24, 7, false, true)
 	if err != nil {
 		t.Fatalf("newRotatingWriter failed: %v", err)
 	}
@@ -52,7 +52,7 @@ func TestRotatingWriter(t *testing.T) {
 func TestRotatingWriterSync(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	writer, err := newRotatingWriter(tmpDir, "sync_test.log", 10, 24, 7, false)
+	writer, err := newRotatingWriter(tmpDir, "sync_test.log", 10, 24, 7, false, true)
 	if err != nil {
 		t.Fatalf("newRotatingWriter failed: %v", err)
 	}
@@ -81,12 +81,13 @@ func TestSetupRotatingFileWriter(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	cfg := &RotationConfig{
-		LogDir:         tmpDir,
-		LogFileName:    "app.log",
-		LogMaxSizeMB:   10,
-		LogMaxAgeHours: 24,
-		LogMaxBackups:  7,
-		LogCompress:    false,
+		LogDir:          tmpDir,
+		LogFileName:     "app.log",
+		LogMaxSizeMB:    10,
+		LogMaxAgeHours:  24,
+		LogMaxBackups:   7,
+		LogCompress:     false,
+		LogEnableStdout: true,
 	}
 
 	writer, err := SetupRotatingFileWriter(cfg)
@@ -107,12 +108,13 @@ func TestSetupRotatingFileWriter(t *testing.T) {
 func TestSetupRotatingFileWriterFallback(t *testing.T) {
 	// Use unwritable directory to trigger fallback
 	cfg := &RotationConfig{
-		LogDir:         "/proc/invalid_dir_12345",
-		LogFileName:    "fallback_test.log",
-		LogMaxSizeMB:   10,
-		LogMaxAgeHours: 24,
-		LogMaxBackups:  7,
-		LogCompress:    false,
+		LogDir:          "/proc/invalid_dir_12345",
+		LogFileName:     "fallback_test.log",
+		LogMaxSizeMB:    10,
+		LogMaxAgeHours:  24,
+		LogMaxBackups:   7,
+		LogCompress:     false,
+		LogEnableStdout: true,
 	}
 
 	writer, err := SetupRotatingFileWriter(cfg)
@@ -135,6 +137,7 @@ func TestGetRotationConfig(t *testing.T) {
 	os.Setenv("LOG_COMPRESS", "0")
 	os.Setenv("LOG_TIMEZONE", "UTC")
 	os.Setenv("LOG_ENABLE_FILE", "false")
+	os.Setenv("LOG_STDOUT", "false")
 	defer func() {
 		os.Unsetenv("LOG_DIR")
 		os.Unsetenv("LOG_FILE_NAME")
@@ -144,6 +147,7 @@ func TestGetRotationConfig(t *testing.T) {
 		os.Unsetenv("LOG_COMPRESS")
 		os.Unsetenv("LOG_TIMEZONE")
 		os.Unsetenv("LOG_ENABLE_FILE")
+		os.Unsetenv("LOG_STDOUT")
 	}()
 
 	cfg := GetRotationConfig("test-component")
@@ -172,6 +176,9 @@ func TestGetRotationConfig(t *testing.T) {
 	if cfg.LogEnableFile != false {
 		t.Errorf("LogEnableFile = %v, want false", cfg.LogEnableFile)
 	}
+	if cfg.LogEnableStdout != false {
+		t.Errorf("LogEnableStdout = %v, want false", cfg.LogEnableStdout)
+	}
 }
 
 func TestGetRotationConfigDefaults(t *testing.T) {
@@ -184,6 +191,7 @@ func TestGetRotationConfigDefaults(t *testing.T) {
 	os.Unsetenv("LOG_COMPRESS")
 	os.Unsetenv("LOG_TIMEZONE")
 	os.Unsetenv("LOG_ENABLE_FILE")
+	os.Unsetenv("LOG_STDOUT")
 
 	cfg := GetRotationConfig("mycomponent")
 
@@ -210,6 +218,9 @@ func TestGetRotationConfigDefaults(t *testing.T) {
 	}
 	if cfg.LogEnableFile != true {
 		t.Errorf("LogEnableFile = %v, want true (default enabled)", cfg.LogEnableFile)
+	}
+	if cfg.LogEnableStdout != true {
+		t.Errorf("LogEnableStdout = %v, want true (default enabled)", cfg.LogEnableStdout)
 	}
 }
 
