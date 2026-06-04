@@ -6,7 +6,6 @@ RUN GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /ko-app ./cmd/${comp
 
 # Default target: Debian-based with ops tools (for activator, autoscaler, controller, webhook)
 FROM debian:bookworm
-ARG component
 
 # Create non-root user and group (6001:6000 app:apps)
 RUN groupadd -r apps -g 6000 && \
@@ -32,13 +31,12 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /ko-app /usr/local/bin/${component}
+COPY --from=builder /ko-app /ko-app
 
 USER app:apps
-ENTRYPOINT /usr/local/bin/${component}
+ENTRYPOINT ["/ko-app"]
 
 # Lean target: wolfi-based minimal image (for queue sidecar)
 FROM ghcr.io/wolfi-dev/static:alpine AS wolfi
-ARG component
-COPY --from=builder /ko-app /usr/local/bin/${component}
-ENTRYPOINT /usr/local/bin/${component}
+COPY --from=builder /ko-app /ko-app
+ENTRYPOINT ["/ko-app"]
